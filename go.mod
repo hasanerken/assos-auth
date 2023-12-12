@@ -2,7 +2,7 @@
 
 module fiber
 
-go 1.21
+go 1.18
 
 require (
 	entgo.io/ent v0.12.5
