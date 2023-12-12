@@ -1,0 +1,40 @@
+version: 3
+
+tasks:
+  # Add a new watch task
+  watch:
+    desc: Watch for changes and run the 'build' task
+    cmds:
+      - watchexec -w ./ -r task run:dev
+
+  run:main:
+    cmds:
+      - go run main.go
+    env:
+      PORT: 8001
+      DATABASE_URL: postgresql://postgres:DE2DE3FCc33aAdaCCfa2D5Dde2CC26B2@monorail.proxy.rlwy.net:41846/railway
+      REDIS_URL: redis://default:eMaFEkm2BP6CbpdAbLljmCiNn2Ocgjop@monorail.proxy.rlwy.net:11934
+      AUTHORIZER_CLIENT_ID: b9469736-de8b-4f22-a03d-8a02f582a23b
+      AUTHORIZER_URL: https://authorizer-production-0681.up.railway.app/
+
+  run:dev:
+    cmds:
+      - go run main.go
+    sources:
+      - ./*.go,
+      - ./**/*.go
+    env:
+      ENVIRONMENT: "development"
+      DATABASE_URL: postgresql://postgres:ZE2T5IyaMMSdj8hSAEhp@containers-us-west-203.railway.app:6890/railway
+      LOG_LEVEL: "debug"
+      NATS_URL: "0.0.0.0:4222"
+
+  test:
+    desc: Runs go tests
+    cmds:
+      - go test -race  ./...
+
+  test-coverage:
+    desc: Runs go tests and calculates test coverage
+    cmds:
+      - go test -race -coverprofile=c.out ./...
