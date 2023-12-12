@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log/slog"
+	"fmt"
 	"os"
 
 	"github.com/authorizerdev/authorizer-go"
@@ -29,7 +29,7 @@ func main() {
 
 	authorizerClient, err := authorizer.NewAuthorizerClient(AUTHORIZER_CLIENT_ID, AUTHORIZER_URL, "", defaultHeaders)
 	if err != nil {
-		slog.Error(err.Error())
+		fmt.Errorf(err.Error())
 		panic(err)
 	}
 
@@ -40,7 +40,7 @@ func main() {
 			Password: "Sirena79*",
 		})
 		if err != nil {
-			slog.Error("password validation failed")
+			fmt.Errorf("password validation failed")
 		}
 
 		return c.JSON(fiber.Map{
