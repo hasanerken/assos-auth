@@ -1,13 +1,17 @@
 package main
 
 import (
+	"context"
+	"fiber/ent"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
 	"github.com/authorizerdev/authorizer-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	_ "github.com/lib/pq"
 )
 
 func getPort() string {
@@ -63,6 +67,25 @@ func AuthorizeMiddleware() fiber.Handler {
 }
 
 func main() {
+	host := os.Getenv("PGHOST")
+	port := os.Getenv("PGPORT")
+	user := os.Getenv("PGUSER")
+	password := os.Getenv("PGPASSWORD")
+	database := os.Getenv("PGDATABASE")
+
+	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s", host, port, user, database, password)
+
+	client, err := ent.Open("postgres", connectionString)
+    if err != nil {
+        log.Fatalf("failed opening connection to postgres: %v", err)
+    }
+    defer client.Close()
+    // Run the auto migration tool.
+    if err := client.Schema.Create(context.Background()); err != nil {
+        log.Fatalf("failed creating schema resources: %v", err)
+    }
+
+
 	app := fiber.New()
 
 	defaultHeaders := map[string]string{}
@@ -120,10 +143,23 @@ func main() {
 				"error": err.Error(),
 			})
 		}
+		CreateUser(context.Background(), client)
 		return c.JSON(fiber.Map {
 			"response": response,
 		})
 	})
-
 	app.Listen(getPort())
+}
+
+func CreateUser(ctx context.Context, client *ent.Client) (*ent.User, error) {
+	u, err := client.User.
+		Create().
+		SetAge(30).
+		SetName("a8m").
+		Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed creating user: %w", err)
+	}
+	log.Println("user was created: ", u)
+	return u, nil
 }
