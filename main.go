@@ -42,6 +42,7 @@ func main() {
 		if err != nil {
 			slog.Error("password validation failed")
 		}
+
 		return c.JSON(fiber.Map{
 			"message": "Hello, Railway! I am Hasan",
 		})
