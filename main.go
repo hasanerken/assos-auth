@@ -44,7 +44,7 @@ func main() {
 		}
 
 		return c.JSON(fiber.Map{
-			"message": "Hello, Railway! I am Hasan",
+			"message": "Hello, Railway! I am Hasan Erken",
 		})
 	})
 
