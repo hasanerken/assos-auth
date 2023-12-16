@@ -1,12 +1,13 @@
 package main
 
 import (
+	"assos/app/tenant"
+	"assos/infrastructure/authlib"
+	"assos/infrastructure/storages"
 	"context"
-	"fiber/ent"
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/authorizerdev/authorizer-go"
 	"github.com/gofiber/fiber/v2"
@@ -25,80 +26,32 @@ func getPort() string {
 	return port
 }
 
-func AuthorizeMiddleware() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		// for open routes, you can add a condition here and just return with c.Next()
-		// so that it does not validate the token for those routes
-
-		authHeader := c.Get("Authorization")
-		tokenSplit := strings.Split(authHeader, " ")
-
-		AUTHORIZER_URL := os.Getenv("AUTHORIZER_URL")
-		AUTHORIZER_CLIENT_ID := os.Getenv("AUTHORIZER_CLIENT_ID")
-
-		defaultHeaders := map[string]string{}
-		authorizerClient, err := authorizer.NewAuthorizerClient(AUTHORIZER_CLIENT_ID, AUTHORIZER_URL, "", defaultHeaders)
-		if err != nil {
-			// unauthorized
-			return c.Status(401).JSON(fiber.Map{"message": "unauthorized"})
-		}
-
-		if len(tokenSplit) < 2 || tokenSplit[1] == "" {
-			// unauthorized
-			return c.Status(401).JSON(fiber.Map{"message": "unauthorized"})
-		}
-
-		res, err := authorizerClient.ValidateJWTToken(&authorizer.ValidateJWTTokenInput{
-			TokenType: authorizer.TokenTypeIDToken,
-			Token:     tokenSplit[1],
-		})
-		if err != nil {
-			// unauthorized
-			return c.Status(401).JSON(fiber.Map{"message": "unauthorized"})
-		}
-
-		if !res.IsValid {
-			// unauthorized
-			return c.Status(401).JSON(fiber.Map{"message": "unauthorized"})
-		}
-
-		return c.Next()
-	}
-}
-
 func main() {
-	host := os.Getenv("PGHOST")
-	port := os.Getenv("PGPORT")
-	user := os.Getenv("PGUSER")
-	password := os.Getenv("PGPASSWORD")
-	database := os.Getenv("PGDATABASE")
 
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s", host, port, user, database, password)
-
-	client, err := ent.Open("postgres", connectionString)
+	client, err := storages.InitializeDatabase()
     if err != nil {
-        log.Fatalf("failed opening connection to postgres: %v", err)
+        log.Fatalf("failed to initialize database: %v", err)
     }
     defer client.Close()
-    // Run the auto migration tool.
-    if err := client.Schema.Create(context.Background()); err != nil {
-        log.Fatalf("failed creating schema resources: %v", err)
-    }
 
+    // Migrate database schema
+	if err := storages.MigrateDatabase(context.Background(), client); err != nil {
+	 	log.Fatalf("failed to migrate database schema: %v", err)
+	 }
+
+	authorizerClient, err := authlib.NewAuthorizerClient()
+	if err != nil {
+		log.Fatalf("failed to initialize authorizer client: %v", err)
+	}
 
 	app := fiber.New()
-
-	defaultHeaders := map[string]string{}
-
-	AUTHORIZER_URL := os.Getenv("AUTHORIZER_URL")
-	AUTHORIZER_CLIENT_ID := os.Getenv("AUTHORIZER_CLIENT_ID")
-
-	authorizerClient, err := authorizer.NewAuthorizerClient(AUTHORIZER_CLIENT_ID, AUTHORIZER_URL, "", defaultHeaders)
-	if err != nil {
-		fmt.Errorf(err.Error())
-		panic(err)
-	}
 	app.Use(logger.New())
+	app.Use(authlib.AuthorizeMiddleware())
+
+	tenantRepository := tenant.NewTenantRepo(client)
+
+	tenant.SetupRoutes(app, tenantRepository)
+
 
 	email := "hasan.erken@gmail.com"
 	app.Get("/health", func(c *fiber.Ctx) error {
@@ -116,7 +69,7 @@ func main() {
 		})
 	})
 
-	app.Get("/private", AuthorizeMiddleware(),  func(c *fiber.Ctx) error {
+	app.Get("/private",  func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"private": "Hello dashboard",
 		})
@@ -143,23 +96,14 @@ func main() {
 				"error": err.Error(),
 			})
 		}
-		CreateUser(context.Background(), client)
+
 		return c.JSON(fiber.Map {
 			"response": response,
 		})
 	})
-	app.Listen(getPort())
-}
-
-func CreateUser(ctx context.Context, client *ent.Client) (*ent.User, error) {
-	u, err := client.User.
-		Create().
-		SetAge(30).
-		SetName("a8m").
-		Save(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed creating user: %w", err)
+	// Print route information
+	fmt.Println("app started before")
+	if err := app.Listen(getPort()); err != nil {
+		fmt.Println(err)
 	}
-	log.Println("user was created: ", u)
-	return u, nil
 }

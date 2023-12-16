@@ -3,22 +3,60 @@
 package ent
 
 import (
-	"fiber/ent/schema"
-	"fiber/ent/user"
+	"assos/ent/schema"
+	"assos/ent/tenant"
+	"assos/ent/user"
+	"time"
 )
 
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	tenantFields := schema.Tenant{}.Fields()
+	_ = tenantFields
+	// tenantDescName is the schema descriptor for name field.
+	tenantDescName := tenantFields[1].Descriptor()
+	// tenant.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	tenant.NameValidator = tenantDescName.Validators[0].(func(string) error)
+	// tenantDescDescription is the schema descriptor for description field.
+	tenantDescDescription := tenantFields[2].Descriptor()
+	// tenant.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	tenant.DescriptionValidator = tenantDescDescription.Validators[0].(func(string) error)
+	// tenantDescType is the schema descriptor for type field.
+	tenantDescType := tenantFields[3].Descriptor()
+	// tenant.TypeValidator is a validator for the "type" field. It is called by the builders before save.
+	tenant.TypeValidator = tenantDescType.Validators[0].(func(string) error)
+	// tenantDescEmail is the schema descriptor for email field.
+	tenantDescEmail := tenantFields[4].Descriptor()
+	// tenant.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	tenant.EmailValidator = tenantDescEmail.Validators[0].(func(string) error)
+	// tenantDescOwnerID is the schema descriptor for owner_id field.
+	tenantDescOwnerID := tenantFields[5].Descriptor()
+	// tenant.OwnerIDValidator is a validator for the "owner_id" field. It is called by the builders before save.
+	tenant.OwnerIDValidator = tenantDescOwnerID.Validators[0].(func(string) error)
+	// tenantDescCreatedAt is the schema descriptor for created_at field.
+	tenantDescCreatedAt := tenantFields[6].Descriptor()
+	// tenant.DefaultCreatedAt holds the default value on creation for the created_at field.
+	tenant.DefaultCreatedAt = tenantDescCreatedAt.Default.(func() time.Time)
+	// tenantDescUpdatedAt is the schema descriptor for updated_at field.
+	tenantDescUpdatedAt := tenantFields[7].Descriptor()
+	// tenant.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	tenant.DefaultUpdatedAt = tenantDescUpdatedAt.Default.(func() time.Time)
+	// tenant.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	tenant.UpdateDefaultUpdatedAt = tenantDescUpdatedAt.UpdateDefault.(func() time.Time)
 	userFields := schema.User{}.Fields()
 	_ = userFields
-	// userDescAge is the schema descriptor for age field.
-	userDescAge := userFields[0].Descriptor()
-	// user.AgeValidator is a validator for the "age" field. It is called by the builders before save.
-	user.AgeValidator = userDescAge.Validators[0].(func(int) error)
-	// userDescName is the schema descriptor for name field.
-	userDescName := userFields[1].Descriptor()
-	// user.DefaultName holds the default value on creation for the name field.
-	user.DefaultName = userDescName.Default.(string)
+	// userDescEmail is the schema descriptor for email field.
+	userDescEmail := userFields[2].Descriptor()
+	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
+	// userDescTenantOwner is the schema descriptor for tenant_owner field.
+	userDescTenantOwner := userFields[21].Descriptor()
+	// user.DefaultTenantOwner holds the default value on creation for the tenant_owner field.
+	user.DefaultTenantOwner = userDescTenantOwner.Default.(bool)
+	// userDescID is the schema descriptor for id field.
+	userDescID := userFields[1].Descriptor()
+	// user.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	user.IDValidator = userDescID.Validators[0].(func(string) error)
 }

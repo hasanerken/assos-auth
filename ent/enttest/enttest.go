@@ -3,12 +3,12 @@
 package enttest
 
 import (
+	"assos/ent"
 	"context"
-	"fiber/ent"
 	// required by schema hooks.
-	_ "fiber/ent/runtime"
+	_ "assos/ent/runtime"
 
-	"fiber/ent/migrate"
+	"assos/ent/migrate"
 
 	"entgo.io/ent/dialect/sql/schema"
 )

@@ -11,19 +11,76 @@ const (
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldAge holds the string denoting the age field in the database.
-	FieldAge = "age"
-	// FieldName holds the string denoting the name field in the database.
-	FieldName = "name"
+	// FieldKey holds the string denoting the key field in the database.
+	FieldKey = "key"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
+	// FieldEmailVerifiedAt holds the string denoting the email_verified_at field in the database.
+	FieldEmailVerifiedAt = "email_verified_at"
+	// FieldPassword holds the string denoting the password field in the database.
+	FieldPassword = "password"
+	// FieldSignupMethods holds the string denoting the signup_methods field in the database.
+	FieldSignupMethods = "signup_methods"
+	// FieldGivenName holds the string denoting the given_name field in the database.
+	FieldGivenName = "given_name"
+	// FieldFamilyName holds the string denoting the family_name field in the database.
+	FieldFamilyName = "family_name"
+	// FieldMiddleName holds the string denoting the middle_name field in the database.
+	FieldMiddleName = "middle_name"
+	// FieldNickname holds the string denoting the nickname field in the database.
+	FieldNickname = "nickname"
+	// FieldGender holds the string denoting the gender field in the database.
+	FieldGender = "gender"
+	// FieldBirthdate holds the string denoting the birthdate field in the database.
+	FieldBirthdate = "birthdate"
+	// FieldPhoneNumber holds the string denoting the phone_number field in the database.
+	FieldPhoneNumber = "phone_number"
+	// FieldPhoneNumberVerifiedAt holds the string denoting the phone_number_verified_at field in the database.
+	FieldPhoneNumberVerifiedAt = "phone_number_verified_at"
+	// FieldPicture holds the string denoting the picture field in the database.
+	FieldPicture = "picture"
+	// FieldRoles holds the string denoting the roles field in the database.
+	FieldRoles = "roles"
+	// FieldRevokedTimestamp holds the string denoting the revoked_timestamp field in the database.
+	FieldRevokedTimestamp = "revoked_timestamp"
+	// FieldIsMultiFactorAuthEnabled holds the string denoting the is_multi_factor_auth_enabled field in the database.
+	FieldIsMultiFactorAuthEnabled = "is_multi_factor_auth_enabled"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldAppData holds the string denoting the app_data field in the database.
+	FieldAppData = "app_data"
+	// FieldTenantOwner holds the string denoting the tenant_owner field in the database.
+	FieldTenantOwner = "tenant_owner"
 	// Table holds the table name of the user in the database.
-	Table = "users"
+	Table = "authorizer_users"
 )
 
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
-	FieldAge,
-	FieldName,
+	FieldKey,
+	FieldEmail,
+	FieldEmailVerifiedAt,
+	FieldPassword,
+	FieldSignupMethods,
+	FieldGivenName,
+	FieldFamilyName,
+	FieldMiddleName,
+	FieldNickname,
+	FieldGender,
+	FieldBirthdate,
+	FieldPhoneNumber,
+	FieldPhoneNumberVerifiedAt,
+	FieldPicture,
+	FieldRoles,
+	FieldRevokedTimestamp,
+	FieldIsMultiFactorAuthEnabled,
+	FieldUpdatedAt,
+	FieldCreatedAt,
+	FieldAppData,
+	FieldTenantOwner,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -37,10 +94,12 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// AgeValidator is a validator for the "age" field. It is called by the builders before save.
-	AgeValidator func(int) error
-	// DefaultName holds the default value on creation for the "name" field.
-	DefaultName string
+	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	EmailValidator func(string) error
+	// DefaultTenantOwner holds the default value on creation for the "tenant_owner" field.
+	DefaultTenantOwner bool
+	// IDValidator is a validator for the "id" field. It is called by the builders before save.
+	IDValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the User queries.
@@ -51,12 +110,107 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByAge orders the results by the age field.
-func ByAge(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAge, opts...).ToFunc()
+// ByKey orders the results by the key field.
+func ByKey(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldKey, opts...).ToFunc()
 }
 
-// ByName orders the results by the name field.
-func ByName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldName, opts...).ToFunc()
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByEmailVerifiedAt orders the results by the email_verified_at field.
+func ByEmailVerifiedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmailVerifiedAt, opts...).ToFunc()
+}
+
+// ByPassword orders the results by the password field.
+func ByPassword(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPassword, opts...).ToFunc()
+}
+
+// BySignupMethods orders the results by the signup_methods field.
+func BySignupMethods(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSignupMethods, opts...).ToFunc()
+}
+
+// ByGivenName orders the results by the given_name field.
+func ByGivenName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGivenName, opts...).ToFunc()
+}
+
+// ByFamilyName orders the results by the family_name field.
+func ByFamilyName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFamilyName, opts...).ToFunc()
+}
+
+// ByMiddleName orders the results by the middle_name field.
+func ByMiddleName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMiddleName, opts...).ToFunc()
+}
+
+// ByNickname orders the results by the nickname field.
+func ByNickname(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNickname, opts...).ToFunc()
+}
+
+// ByGender orders the results by the gender field.
+func ByGender(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGender, opts...).ToFunc()
+}
+
+// ByBirthdate orders the results by the birthdate field.
+func ByBirthdate(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBirthdate, opts...).ToFunc()
+}
+
+// ByPhoneNumber orders the results by the phone_number field.
+func ByPhoneNumber(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPhoneNumber, opts...).ToFunc()
+}
+
+// ByPhoneNumberVerifiedAt orders the results by the phone_number_verified_at field.
+func ByPhoneNumberVerifiedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPhoneNumberVerifiedAt, opts...).ToFunc()
+}
+
+// ByPicture orders the results by the picture field.
+func ByPicture(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPicture, opts...).ToFunc()
+}
+
+// ByRoles orders the results by the roles field.
+func ByRoles(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRoles, opts...).ToFunc()
+}
+
+// ByRevokedTimestamp orders the results by the revoked_timestamp field.
+func ByRevokedTimestamp(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRevokedTimestamp, opts...).ToFunc()
+}
+
+// ByIsMultiFactorAuthEnabled orders the results by the is_multi_factor_auth_enabled field.
+func ByIsMultiFactorAuthEnabled(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsMultiFactorAuthEnabled, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByAppData orders the results by the app_data field.
+func ByAppData(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAppData, opts...).ToFunc()
+}
+
+// ByTenantOwner orders the results by the tenant_owner field.
+func ByTenantOwner(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantOwner, opts...).ToFunc()
 }

@@ -3,28 +3,69 @@
 package migrate
 
 import (
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/dialect/sql/schema"
 	"entgo.io/ent/schema/field"
 )
 
 var (
-	// UsersColumns holds the columns for the "users" table.
-	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "age", Type: field.TypeInt},
-		{Name: "name", Type: field.TypeString, Default: "unknown"},
+	// TenantsColumns holds the columns for the "tenants" table.
+	TenantsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "type", Type: field.TypeString},
+		{Name: "email", Type: field.TypeString},
+		{Name: "owner_id", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
 	}
-	// UsersTable holds the schema information for the "users" table.
-	UsersTable = &schema.Table{
-		Name:       "users",
-		Columns:    UsersColumns,
-		PrimaryKey: []*schema.Column{UsersColumns[0]},
+	// TenantsTable holds the schema information for the "tenants" table.
+	TenantsTable = &schema.Table{
+		Name:       "tenants",
+		Columns:    TenantsColumns,
+		PrimaryKey: []*schema.Column{TenantsColumns[0]},
+	}
+	// AuthorizerUsersColumns holds the columns for the "authorizer_users" table.
+	AuthorizerUsersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "key", Type: field.TypeString},
+		{Name: "email", Type: field.TypeString, Unique: true},
+		{Name: "email_verified_at", Type: field.TypeInt64, Nullable: true},
+		{Name: "password", Type: field.TypeString},
+		{Name: "signup_methods", Type: field.TypeString, Nullable: true},
+		{Name: "given_name", Type: field.TypeString, Nullable: true},
+		{Name: "family_name", Type: field.TypeString, Nullable: true},
+		{Name: "middle_name", Type: field.TypeString, Nullable: true},
+		{Name: "nickname", Type: field.TypeString, Nullable: true},
+		{Name: "gender", Type: field.TypeString, Nullable: true},
+		{Name: "birthdate", Type: field.TypeString, Nullable: true},
+		{Name: "phone_number", Type: field.TypeString, Nullable: true},
+		{Name: "phone_number_verified_at", Type: field.TypeInt64, Nullable: true},
+		{Name: "picture", Type: field.TypeString, Nullable: true},
+		{Name: "roles", Type: field.TypeString},
+		{Name: "revoked_timestamp", Type: field.TypeInt64, Nullable: true},
+		{Name: "is_multi_factor_auth_enabled", Type: field.TypeBool, Nullable: true},
+		{Name: "updated_at", Type: field.TypeInt64},
+		{Name: "created_at", Type: field.TypeInt64},
+		{Name: "app_data", Type: field.TypeString, Nullable: true},
+		{Name: "tenant_owner", Type: field.TypeBool, Default: false},
+	}
+	// AuthorizerUsersTable holds the schema information for the "authorizer_users" table.
+	AuthorizerUsersTable = &schema.Table{
+		Name:       "authorizer_users",
+		Columns:    AuthorizerUsersColumns,
+		PrimaryKey: []*schema.Column{AuthorizerUsersColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		UsersTable,
+		TenantsTable,
+		AuthorizerUsersTable,
 	}
 )
 
 func init() {
+	AuthorizerUsersTable.Annotation = &entsql.Annotation{
+		Table: "authorizer_users",
+	}
 }

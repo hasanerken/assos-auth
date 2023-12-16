@@ -3,9 +3,10 @@
 package ent
 
 import (
+	"assos/ent/tenant"
+	"assos/ent/user"
 	"context"
 	"errors"
-	"fiber/ent/user"
 	"fmt"
 	"reflect"
 	"sync"
@@ -73,7 +74,8 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			user.Table: user.ValidColumn,
+			tenant.Table: tenant.ValidColumn,
+			user.Table:   user.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)
